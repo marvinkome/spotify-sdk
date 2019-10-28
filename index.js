@@ -1,5 +1,6 @@
 const axios = require("axios");
 const querystring = require("querystring");
+const { formatSongData } = require("./utils");
 
 class Spotify {
   constructor(clientID, clientSecret) {
@@ -58,11 +59,12 @@ class Spotify {
    * Search for a track and returns the first item found
    *
    * @param {string} title - The track title
-   * @param {string} artist = The track artist
+   * @param {string} artist - The track artist
+   * @param {boolean} raw - Format track or send raw track data with all fields
    *
    * @returns {object} track details
    */
-  async searchTrack(title, artist) {
+  async searchTrack(title, artist, raw = true) {
     try {
       const { data } = await this.axios.get("/search", {
         params: {
@@ -71,7 +73,7 @@ class Spotify {
         }
       });
 
-      return data.tracks.items[0];
+      return raw ? formatSongData(data.tracks.items[0]) : data.tracks.items[0];
     } catch (e) {
       console.error("SPOTIFY ERROR:: searching for song:", e.message);
       console.error(e.config);
@@ -81,14 +83,49 @@ class Spotify {
   /**
    * Gets all songs in a spotify playlist
    * @param {string} playlistId - The id of the playlist
+   * @param {boolean} raw - Format track or send raw data with all playlist item date
+   *
    */
-  async getPlaylist(playlistId) {
+  async getPlaylistTracks(playlistId, raw = true) {
+    const songs = [];
+
+    // make first request to get total pages count
+    const { items, total, next } = await this.makePlaylistRequest(playlistId);
+
+    // set tracks
+    for (let item of items) {
+      songs.push(raw ? formatSongData(item.track) : item);
+    }
+
+    // get the total number of page (default is 100 per page)
+    const total_pages = Math.ceil(total / 100);
+
+    // go through total pages and repeat process
+    if (total_pages > 1) {
+      for (let i = 2; i <= total_pages; i++) {
+        // make subsequent requests
+        const { items } = await this.makePlaylistRequest(playlistId, next);
+
+        // set tracks
+        for (let item of items) {
+          songs.push(raw ? formatSongData(item.track) : item);
+        }
+      }
+    }
+
+    return songs;
+  }
+
+  async makePlaylistRequest(playlistId, link = null) {
     try {
-      const { data } = await this.axios.get(`/playlists/${playlistId}/tracks`);
+      const { data } = await this.axios.get(
+        link || `/playlists/${playlistId}/tracks`
+      );
       return data;
     } catch (e) {
       console.error("SPOTIFY ERROR:: searching for song:", e.message);
       console.error(e.config);
+      return [];
     }
   }
 }
