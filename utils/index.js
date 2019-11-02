@@ -1,4 +1,8 @@
 function formatSongData(item) {
+  if (item.id === null) {
+    return { title: "", artists: [""] };
+  }
+
   const data = {
     album: item.album && item.album.name,
     artists:
