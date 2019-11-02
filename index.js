@@ -60,11 +60,11 @@ class Spotify {
    *
    * @param {string} title - The track title
    * @param {string} artist - The track artist
-   * @param {boolean} raw - Format track or send raw track data with all fields
+   * @param {boolean} formatted - Format track or send raw track data with all fields
    *
    * @returns {object} track details
    */
-  async searchTrack(title, artist, raw = true) {
+  async searchTrack(title, artist, formatted = true) {
     try {
       const { data } = await this.axios.get("/search", {
         params: {
@@ -73,7 +73,9 @@ class Spotify {
         }
       });
 
-      return raw ? formatSongData(data.tracks.items[0]) : data.tracks.items[0];
+      return formatted
+        ? formatSongData(data.tracks.items[0])
+        : data.tracks.items[0];
     } catch (e) {
       console.error("SPOTIFY ERROR:: searching for song:", e.message);
       console.error(e.config);
@@ -83,10 +85,10 @@ class Spotify {
   /**
    * Gets all songs in a spotify playlist
    * @param {string} playlistId - The id of the playlist
-   * @param {boolean} raw - Format track or send raw data with all playlist item date
+   * @param {boolean} formatted - Format track or send raw data with all playlist item date
    *
    */
-  async getPlaylistTracks(playlistId, raw = true) {
+  async getPlaylistTracks(playlistId, formatted = true) {
     const songs = [];
 
     // make first request to get total pages count
@@ -94,7 +96,7 @@ class Spotify {
 
     // set tracks
     for (let item of items) {
-      songs.push(raw ? formatSongData(item.track) : item);
+      songs.push(formatted ? formatSongData(item.track) : item);
     }
 
     // get the total number of page (default is 100 per page)
@@ -108,7 +110,7 @@ class Spotify {
 
         // set tracks
         for (let item of items) {
-          songs.push(raw ? formatSongData(item.track) : item);
+          songs.push(formatSongData ? formatSongData(item.track) : item);
         }
       }
     }
@@ -116,6 +118,42 @@ class Spotify {
     return songs;
   }
 
+  /**
+   * Get all songs in a spotify album
+   * @param {string} albumId
+   * @param {boolean} formatted
+   */
+  async getAlbumTracks(albumId, formatted = true) {
+    const songs = [];
+
+    // make first request to get total pages count
+    const { items, total, next } = await this.makeAlbumRequest(albumId);
+
+    // set tracks
+    for (let item of items) {
+      songs.push(formatted ? formatSongData(item.track) : item);
+    }
+
+    // get the total number of page (default is 100 per page)
+    const total_pages = Math.ceil(total / 100);
+
+    // go through total pages and repeat process
+    if (total_pages > 1) {
+      for (let i = 2; i <= total_pages; i++) {
+        // make subsequent requests
+        const { items } = await this.makeAlbumRequest(albumId, next);
+
+        // set tracks
+        for (let item of items) {
+          songs.push(formatSongData ? formatSongData(item.track) : item);
+        }
+      }
+    }
+
+    return songs;
+  }
+
+  // requests
   async makePlaylistRequest(playlistId, link = null) {
     try {
       const { data } = await this.axios.get(
@@ -123,9 +161,23 @@ class Spotify {
       );
       return data;
     } catch (e) {
-      console.error("SPOTIFY ERROR:: searching for song:", e.message);
+      console.error("SPOTIFY ERROR:: cannot get playlist data:", e.message);
       console.error(e.config);
-      return [];
+      return {};
+    }
+  }
+
+  async makeAlbumRequest(albumId, link = null) {
+    try {
+      const { data } = await this.axios.get(
+        link || `/albums/${albumId}/tracks`
+      );
+
+      return data;
+    } catch (e) {
+      console.error("SPOTIFY ERROR:: cannot get album data:", e.message);
+      console.error(e.config);
+      return {};
     }
   }
 }
