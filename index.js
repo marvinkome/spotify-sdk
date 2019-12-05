@@ -131,7 +131,7 @@ class Spotify {
 
     // set tracks
     for (let item of items) {
-      songs.push(formatted ? formatSongData(item.track) : item);
+      songs.push(formatted ? formatSongData(item) : item);
     }
 
     // get the total number of page (default is 100 per page)
