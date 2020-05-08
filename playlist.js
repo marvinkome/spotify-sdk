@@ -5,7 +5,7 @@ const authData = require("auth.json");
 
 // get playlist features
 async function main(playlistId = "6f3lchHmBQed8GnWmayLn6") {
-  const spotify = await new Spotify(authData.clientId, authData.clientSecret);
+  const spotify = await new Spotify(authData.clientID, authData.clientSecret);
 
   const playlistData = await spotify.getPlaylistTracks(playlistId, item => ({
     id: item.id,

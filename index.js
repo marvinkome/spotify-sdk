@@ -276,7 +276,7 @@ class Spotify {
    * @param {function} formater - A function that formats every item
    *
    */
-  async getPlaylistTracks(playlistId, formater = formatSongData) {
+  async getPlaylistTracks(playlistId, formater = formatSongData, pages = null) {
     const songs = [];
     let next = null;
 
@@ -295,6 +295,13 @@ class Spotify {
     // go through total pages and repeat process
     if (total_pages > 1) {
       for (let i = 2; i <= total_pages; i++) {
+        // limit the number of pages fetched
+        if (pages) {
+          if (i > pages) {
+            break;
+          }
+        }
+
         // make subsequent requests
         const { items, ...resp } = await this.makePlaylistRequest(
           playlistId,

@@ -2,7 +2,7 @@ const { Spotify } = require(".");
 const blacklist = require("./blacklist.json");
 const { writeFileSync } = require("fs");
 const { merge, uniqBy } = require("lodash");
-const authData = require("auth.json");
+const authData = require("./auth.json");
 
 class MySpotifyData {
   constructor() {
@@ -10,7 +10,7 @@ class MySpotifyData {
 
     return (async () => {
       this.spotify = await new Spotify(
-        authData.clientId,
+        authData.clientID,
         authData.clientSecret,
         {
           authType: "user",
