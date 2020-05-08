@@ -1,2 +1,10 @@
 node_modules
 .DS_Store
+
+# generated data
+audio_data.json
+data.json
+
+# auth data
+auth.json
+cache.json
