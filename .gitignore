@@ -2,8 +2,7 @@ node_modules
 .DS_Store
 
 # generated data
-audio_data.json
-data.json
+output/*.json
 
 # auth data
 auth.json

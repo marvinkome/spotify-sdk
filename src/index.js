@@ -457,4 +457,4 @@ class Spotify {
   }
 }
 
-exports.default = Spotify;
+exports.Spotify = Spotify;

@@ -1,9 +1,9 @@
-const Spotify = require("../src");
+const { Spotify } = require("../src");
 const authData = require("../auth.json");
 const { writeFileSync } = require("fs");
 const { merge } = require("lodash");
 
-const o_genre_playlist = {
+const genre_playlist = {
   "Modern Rock": "5HufsVvMDoIPr9tGzoJpW0",
   Pop: "6gS3HhOiI17QNojjPuPzqc",
   Rock: "7dowgSWOmvdpwNkGFMUs6e",
@@ -21,13 +21,7 @@ const o_genre_playlist = {
   "Psychedelic pop": "75MgjwXES1jwlJXcBVkrQh",
 };
 
-/**
- * Get all songs in a playlist related to a genre and store in a file
- *
- * @param {{ key: string }} genre_playlist
- * @param {string} outputFile
- */
-async function main(genre_playlist, outputFile) {
+async function main(outputFile) {
   console.time("run-time");
 
   const spotify = await new Spotify(authData.clientID, authData.clientSecret);
@@ -61,7 +55,7 @@ async function main(genre_playlist, outputFile) {
   songs = merge(songs, audioData);
 
   // write to json file
-  writeFileSync(outputFile, JSON.stringify(songs));
+  writeFileSync(`output/${outputFile}.json`, JSON.stringify(songs));
 
   console.timeEnd("run-time");
 
@@ -71,4 +65,4 @@ async function main(genre_playlist, outputFile) {
   );
 }
 
-exports.default = main;
+(async () => await main("genre-playlist"))();

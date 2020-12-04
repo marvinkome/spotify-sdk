@@ -38,7 +38,7 @@ class MySpotifyData {
     await this.getAudioFeatures();
 
     // write to json file
-    writeFileSync("audio_data.json", JSON.stringify(this.songs));
+    writeFileSync("output/audio_data.json", JSON.stringify(this.songs));
 
     return console.log(
       this.songs.length,
