@@ -5,7 +5,7 @@ const {
   formatSongData,
   openBrowserForAuth,
   readCache,
-  cacheCode
+  cacheCode,
 } = require("./utils");
 
 class Spotify {
@@ -14,7 +14,7 @@ class Spotify {
     this.clientSecret = clientSecret;
     this.token = null;
     this.axios = axios.create({
-      baseURL: "https://api.spotify.com/v1/"
+      baseURL: "https://api.spotify.com/v1/",
     });
 
     return (async () => {
@@ -40,13 +40,13 @@ class Spotify {
       const axiosData = await axios.post(
         "https://accounts.spotify.com/api/token",
         querystring.stringify({
-          grant_type: "client_credentials"
+          grant_type: "client_credentials",
         }),
         {
           headers: {
             "content-type": "application/x-www-form-urlencoded",
-            Authorization: `Basic ${authKey}`
-          }
+            Authorization: `Basic ${authKey}`,
+          },
         }
       );
 
@@ -61,7 +61,7 @@ class Spotify {
       console.error({
         clientID: this.clientID,
         clientSecret: this.clientSecret,
-        authKey
+        authKey,
       });
     }
   }
@@ -87,13 +87,13 @@ class Spotify {
         querystring.stringify({
           grant_type: code ? "authorization_code" : "refresh_token",
           ...(code ? { code } : { refresh_token }),
-          redirect_uri: "http://localhost:8008/callback"
+          redirect_uri: "http://localhost:8008/callback",
         }),
         {
           headers: {
             "content-type": "application/x-www-form-urlencoded",
-            Authorization: `Basic ${authKey}`
-          }
+            Authorization: `Basic ${authKey}`,
+          },
         }
       );
 
@@ -119,7 +119,7 @@ class Spotify {
       console.error({
         clientID: this.clientID,
         clientSecret: this.clientSecret,
-        authKey
+        authKey,
       });
     }
   }
@@ -138,8 +138,8 @@ class Spotify {
       const { data } = await this.axios.get("/search", {
         params: {
           q: `track:${title} artist:${artist}`,
-          type: "track"
-        }
+          type: "track",
+        },
       });
 
       return formatted
@@ -445,7 +445,7 @@ class Spotify {
   async makeAudiosFeaturesRequest(trackIds) {
     try {
       const { data } = await this.axios.get("audio-features", {
-        params: { ids: trackIds.join(",") }
+        params: { ids: trackIds.join(",") },
       });
 
       return data;
@@ -457,4 +457,4 @@ class Spotify {
   }
 }
 
-exports.Spotify = Spotify;
+exports.default = Spotify;

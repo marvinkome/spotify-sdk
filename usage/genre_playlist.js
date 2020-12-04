@@ -1,9 +1,9 @@
-const { Spotify } = require(".");
+const Spotify = require("../src");
+const authData = require("../auth.json");
 const { writeFileSync } = require("fs");
 const { merge } = require("lodash");
-const authData = require("./auth.json");
 
-const genre_playlist = {
+const o_genre_playlist = {
   "Modern Rock": "5HufsVvMDoIPr9tGzoJpW0",
   Pop: "6gS3HhOiI17QNojjPuPzqc",
   Rock: "7dowgSWOmvdpwNkGFMUs6e",
@@ -18,11 +18,18 @@ const genre_playlist = {
   Rap: "6s5MoZzR70Qef7x4bVxDO1",
   "Neo-psychedelic": "7qhZxfWGh9O2HWt3V7gpSA",
   "Stomp and Holler": "3zVZ3GsfiYp0vlVazHcDXI",
-  "Psychedelic pop": "75MgjwXES1jwlJXcBVkrQh"
+  "Psychedelic pop": "75MgjwXES1jwlJXcBVkrQh",
 };
 
-async function main() {
+/**
+ * Get all songs in a playlist related to a genre and store in a file
+ *
+ * @param {{ key: string }} genre_playlist
+ * @param {string} outputFile
+ */
+async function main(genre_playlist, outputFile) {
   console.time("run-time");
+
   const spotify = await new Spotify(authData.clientID, authData.clientSecret);
   let songs = [];
 
@@ -34,11 +41,11 @@ async function main() {
     const playlistTracks = await spotify.getPlaylistTracks(
       playlistId,
       // format songs
-      item => ({
+      (item) => ({
         id: item.id,
         name: item.name,
-        artist: item.artists.map(a => a.name).join(","),
-        genre
+        artist: item.artists.map((a) => a.name).join(","),
+        genre,
       }),
       2
     );
@@ -47,18 +54,21 @@ async function main() {
     songs.push(...playlistTracks);
   }
 
-  const audioData = await spotify.getAudiosFeatures(songs.map(data => data.id));
+  const audioData = await spotify.getAudiosFeatures(
+    songs.map((data) => data.id)
+  );
 
   songs = merge(songs, audioData);
 
   // write to json file
-  writeFileSync("genre_data.json", JSON.stringify(songs));
+  writeFileSync(outputFile, JSON.stringify(songs));
 
   console.timeEnd("run-time");
+
   return console.log(
     songs.length,
     "songs processed in and stored in genre_data.json"
   );
 }
 
-main();
+exports.default = main;
