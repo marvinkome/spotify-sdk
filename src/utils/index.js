@@ -21,8 +21,9 @@ function formatSongData(item) {
     disc_number: item.disc_number,
     title: item.name,
     track_number: item.track_number,
-    cover_art: item.album && item.album.images.find(i => i.height === 640).url,
-    year: item.album && item.album.release_date.split("-")[0]
+    cover_art:
+      item.album && item.album.images.find((i) => i.height === 640).url,
+    year: item.album && item.album.release_date.split("-")[0],
   };
 
   return data;
@@ -41,10 +42,10 @@ async function openBrowserForAuth(
       response_type: "code",
       redirect_uri: "http://localhost:8008/callback",
       scope,
-      show_dialog
+      show_dialog,
     });
 
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     // create a server to send and reciecve the auth code in a promise
     const server = http.createServer((req, res) => {
       // parse url to collect pathname and query
@@ -79,11 +80,16 @@ async function openBrowserForAuth(
 }
 
 function cacheCode(key, value) {
-  const cache = JSON.parse(fs.readFileSync("./cache.json"));
+  let cache = {};
+
+  try {
+    cache = JSON.parse(fs.readFileSync("./cache.json"));
+  } catch (e) {
+    console.log("File doesn't exists. Creating it...");
+  }
 
   cache[key] = value;
-
-  fs.writeFileSync("./cache.json", JSON.stringify(cache));
+  fs.writeFileSync("./cache.json", JSON.stringify(cache), { flags: "wx" });
   return true;
 }
 
@@ -102,5 +108,5 @@ module.exports = {
   formatSongData,
   openBrowserForAuth,
   cacheCode,
-  readCache
+  readCache,
 };

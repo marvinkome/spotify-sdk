@@ -1,4 +1,4 @@
-const Spotify = require("../src");
+const { Spotify } = require("../src");
 const authData = require("../auth.json");
 const blacklist = require("../blacklist.json");
 const { writeFileSync } = require("fs");
@@ -127,7 +127,14 @@ async function main() {
   console.time("run-time");
 
   const myData = await new MySpotifyData();
-  await myData.main();
+  await myData.getLikedSongs();
+  await myData.getAudioFeatures();
+
+  // write to json file
+  writeFileSync(
+    "output/spotify-liked-songs.json",
+    JSON.stringify(myData.songs)
+  );
 
   console.timeEnd("run-time");
 }
