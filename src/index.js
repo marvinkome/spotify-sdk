@@ -375,6 +375,24 @@ class Spotify {
     return audio_data;
   }
 
+  /**
+   * Create playlist and add songs into it.
+   * @param {string} name - name of the playlist
+   * @param {string[]} trackIds - list of track to add
+   * @param {string[]} user - playlist owner
+   */
+  async createPlaylist(name, trackIds, user) {
+    // create playlist as store the id
+    const { id } = await this.makeCreatePlaylistRequest(user, name);
+
+    // split tracks in chunks
+    const arrayOftrackIds = chunk(trackIds, 100);
+
+    for (let tracks of arrayOftrackIds) {
+      await this.makeAddItemToPlaylistRequest(tracks, id);
+    }
+  }
+
   // requests
   async makeUserPlaylistRequest(link = null) {
     try {
@@ -451,6 +469,34 @@ class Spotify {
       return data;
     } catch (e) {
       console.error("SPOTIFY ERROR:: cannot get audio data:", e.message);
+      console.error(e.config);
+      return {};
+    }
+  }
+
+  async makeCreatePlaylistRequest(userId, name) {
+    try {
+      const { data } = await this.axios.post(`users/${userId}/playlists`, {
+        name,
+      });
+
+      return data;
+    } catch (e) {
+      console.error("SPOTIFY ERROR:: cannot create playlist:", e.message);
+      console.error(e.config);
+      return {};
+    }
+  }
+
+  async makeAddItemToPlaylistRequest(trackIds, playlistId) {
+    try {
+      const { data } = await this.axios.post(`playlists/${playlistId}/tracks`, {
+        uris: trackIds,
+      });
+
+      return data;
+    } catch (e) {
+      console.error("SPOTIFY ERROR:: cannot add songs to playlist:", e.message);
       console.error(e.config);
       return {};
     }

@@ -3,6 +3,7 @@ node_modules
 
 # generated data
 output/*.json
+input/*.json
 
 # auth data
 auth.json
