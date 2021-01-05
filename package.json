@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/marvinkome/spotify-sdk#readme",
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "esm": "3.2.25",
     "lodash": "4.17.15",
     "open": "7.0.3"
